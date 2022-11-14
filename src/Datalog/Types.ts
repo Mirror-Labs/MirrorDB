@@ -131,13 +131,13 @@ export class Rule implements Interface.ICanEqual<Rule> {
 ////////////////////////////////////////////////////////////////////////////////
 
 interface _Clause {
-  isPattern(): this is PatternClause;
-  isRule(): this is RuleClause;
+  isTripplePattern(): this is TripplePatternClause;
+  isDerivedPattern(): this is DerivedPatternClause;
 }
 
 export type Clause = _Clause & Interface.ICanEqual<Clause>;
 
-export class PatternClause implements Clause {
+export class TripplePatternClause implements Clause {
   constructor(
     private _entity: Expr,
     private _attr: Expr,
@@ -158,22 +158,22 @@ export class PatternClause implements Clause {
 
   equals(other: Clause): boolean {
     return (
-      other.isPattern() &&
+      other.isTripplePattern() &&
       this.entity.equals(other.entity) &&
       this.attr.equals(other.attr) &&
       this.value.equals(other.value)
     );
   }
 
-  isPattern(): this is PatternClause {
+  isTripplePattern(): this is TripplePatternClause {
     return true;
   }
-  isRule(): this is RuleClause {
+  isDerivedPattern(): this is DerivedPatternClause {
     return false;
   }
 }
 
-export class RuleClause implements Clause {
+export class DerivedPatternClause implements Clause {
   constructor(private _name: string, private _expr: Expr[]) {}
 
   get name(): string {
@@ -186,16 +186,16 @@ export class RuleClause implements Clause {
 
   equals(other: Clause): boolean {
     return (
-      other.isRule() &&
+      other.isDerivedPattern() &&
       this.name === other.name &&
       arrayEquals((a, b) => a.equals(b), this.expr, other.expr)
     );
   }
 
-  isPattern(): this is PatternClause {
+  isTripplePattern(): this is TripplePatternClause {
     return false;
   }
-  isRule(): this is RuleClause {
+  isDerivedPattern(): this is DerivedPatternClause {
     return true;
   }
 }
