@@ -6,6 +6,7 @@ import * as Interface from "src/Interface";
 export type EntityID = string;
 export type Attribute = string;
 export type Value = string | number | boolean;
+export type Variable = string;
 
 export type TripleRaw = [string, string, string | number];
 
@@ -140,7 +141,7 @@ export type Clause = _Clause & Interface.ICanEqual<Clause>;
 export class TripplePatternClause implements Clause {
   constructor(
     private _entity: Expr,
-    private _attr: Expr,
+    private _attr: string,
     private _value: Expr
   ) {}
 
@@ -148,7 +149,7 @@ export class TripplePatternClause implements Clause {
     return this._entity;
   }
 
-  get attr(): Expr {
+  get attr(): string {
     return this._attr;
   }
 
@@ -160,7 +161,7 @@ export class TripplePatternClause implements Clause {
     return (
       other.isTripplePattern() &&
       this.entity.equals(other.entity) &&
-      this.attr.equals(other.attr) &&
+      this.attr === other.attr &&
       this.value.equals(other.value)
     );
   }
