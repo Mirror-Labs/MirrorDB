@@ -1,8 +1,13 @@
 import { Attribute, TrippleFact } from "src/Datalog/Types"
 
-interface Transaction {
-  add(entity: string, addOp: AddOp): TempRef;
-  update(entity: string, updateOp: UpdateOp): TempRef;
+export interface Transaction {
+  add(entity: string, addValues: Record<string, MirrorDBValue | TempRef | undefined>): TempRef;
+  update(entity: string, updateInput: UpdateInput): TempRef;
+}
+
+export type UpdateInput = {
+  find: Record<string, MirrorDBValue | TempRef | undefined>,
+  update: Record<string, MirrorDBValue | TempRef | undefined>,
 }
 
 class TransactionImpl implements Transaction {
@@ -22,11 +27,11 @@ class TransactionImpl implements Transaction {
     return this._tempRefs;
   }
 
-  public add(entity: string, addOp: AddOp): TempRef {
+  public add(entity: string, addOp: Record<string, MirrorDBValue | TempRef | undefined>): TempRef {
     return { kind: 'TempRef', ref: ''};
   }
 
-  public update(entity: string, updateOp: UpdateOp): TempRef {
+  public update(entity: string, updateOp: Record<string, MirrorDBValue | TempRef | undefined>): TempRef {
     return { kind: 'TempRef', ref: ''};
   }
 }
@@ -49,14 +54,14 @@ type AddOp = {
 
   tempRef: string;
   entity: string;
-  values: Map<string, MirrorDBValue | TempRef | undefined>;
+  values: Record<string, MirrorDBValue | TempRef | undefined>;
 }
 
 type UpdateOp = {
   kind: 'UpdateOp';
   entity: string;
   find: [string, MirrorDBValue | Ref];
-  values: Map<string, MirrorDBValue | TempRef | undefined>;
+  values: Record<string, MirrorDBValue | TempRef | undefined>;
 };
 
 export function transact(f: (tx: Transaction) => void, db: DB, genRef: () => string): DB {
@@ -73,9 +78,8 @@ export function transact(f: (tx: Transaction) => void, db: DB, genRef: () => str
       const ref = genRef();
       mapRefs.set(op.tempRef, ref);
       const namespace = op.entity;
-      for (const entry of op.values) {
-        const attr = entry[0];
-        const value = entry[1];
+      for (const attr of Object.keys(op.values)) {
+        const value = op.values[attr];
         const fullAttr = `:${namespace}/${attr}`;
         if (value !== undefined) {
           newTripples.push([ref, fullAttr, value]);
@@ -94,9 +98,8 @@ export function transact(f: (tx: Transaction) => void, db: DB, genRef: () => str
       if (oldFact) {
         const ref = oldFact.entity;
         const namespace = op.entity;
-        for (const entry of op.values) {
-          const attr = entry[0];
-          const value = entry[1];
+        for (const attr of Object.keys(op.values)) {
+          const value = op.values[attr];
           const fullAttr = `:${namespace}/${attr}`;
           if (value !== undefined) {
             newTripples.push([ref, fullAttr, value]);

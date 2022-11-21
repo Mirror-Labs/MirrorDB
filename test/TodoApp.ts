@@ -1,3 +1,4 @@
+import { MirrorDB, Schema } from '../src/MirrorDB/MirrorDB';
 
 type Todo = {
   id: string,
@@ -16,20 +17,20 @@ type Reminder = {
   time: Date[];
 }
 
-const schema = {
+const schema: Schema = {
   'todo': {
     'checked': MirrorDB.boolean,
     'description': MirrorDB.string,
     'subList': MirrorDB.many(MirrorDB.entity('todo')),
-    'reminder': MirrorDB.entity('reminder').optional
+    'reminder': MirrorDB.entity('reminder')
   },
   'reminder': {
     'time': MirrorDB.datetime
   },
   '*': {
-    'id': MirrorDB.id.auto,
-    'createdAt': MirrorDB.datetime.auto,
-    'updatedAt': MirrorDB.datetime.auto,
+   'id': MirrorDB.id,
+    'createdAt': MirrorDB.datetime,
+    'updatedAt': MirrorDB.datetime,
   }
 };
 
@@ -41,7 +42,7 @@ export class App {
   }
 
   public view(): Todo[] {
-    return this.db.query({ 
+    return this.db.query<Todo>({ 
       find: {
         'todo': {
           'checked': true,
@@ -62,9 +63,9 @@ export class App {
   // [[1 todo/checked true, 1 todo/descrption "blblbla", 1 reminder 2, 2 reminder/time "123"]]
 
   public add(todo: Todo): App {
-    this.db.transaction((tx) => {
+    this.db.transact((tx) => {
       const reminderRef = todo.reminder ? tx.add('reminder', {
-        time: todo.reminder
+        time: todo.reminder.time.toString()
       }) : undefined 
     
       tx.add('todo', {
@@ -78,7 +79,7 @@ export class App {
   }
 
   public modify(todo: Todo): App {
-    this.db.transaction((tx) => {
+    this.db.transact((tx) => {
       tx.update('todo', {
         find: {
           'id': todo.id,
@@ -94,7 +95,7 @@ export class App {
             'id': todo.reminder.id,
           },
           update: {
-            'time': todo.reminder.time,
+            'time': todo.reminder.time.toString(),
           }
         });
       }
@@ -104,12 +105,12 @@ export class App {
   }
 
   expand(todo: Todo, subList: Todo[]): App {
-    this.db.transaction((tx) => {
+    this.db.transact((tx) => {
       const subListRefs = [];
       for (const subItem of subList) {
         const ref = tx.add('todo', {
-          checked: todo.checked,
-          description: todo.description,
+          checked: subItem.checked,
+          description: subItem.description,
         });
         subListRefs.push(ref);
       }
@@ -119,7 +120,7 @@ export class App {
           'id': todo.id,
         },
         update: {
-          'subList': subListRefs
+          'subList': subListRefs.toString()
         }
       })
 
