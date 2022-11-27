@@ -14,12 +14,13 @@ export type EntitySchema = Record<string, MirrorType>;
 export type MirrorType = MMany | MirrorNonRecursiveType;
 
 type MirrorNonRecursiveType =
-  | MBoolean
-  | MString
-  | MEntity
-  | MDatetime
-  | MId
-  | MIdAuto;
+  // | MOptional
+  MBoolean | MString | MEntity | MDatetime | MId | MIdAuto;
+
+// type MOptional = {
+//   kind: "MOptional";
+//   type: MBoolean | MString | MEntity | MDatetime | MId | MIdAuto;
+// };
 
 type MBoolean = {
   kind: "MBoolean";
@@ -52,7 +53,9 @@ type MIdAuto = {
 };
 
 export class MirrorDB {
-  public static boolean: MBoolean = { kind: "MBoolean" };
+  public static boolean: MBoolean = {
+    kind: "MBoolean",
+  };
   public static string: MString = { kind: "MString" };
   public static entity: (ref: string) => MEntity = (ref: string) => {
     return { kind: "MEntity", ref };

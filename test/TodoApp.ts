@@ -1,4 +1,5 @@
 import { MirrorDB, Schema } from "../src/MirrorDB/MirrorDB";
+import * as SchemaTypes from "src/MirrorDB/Schema";
 
 type Todo = {
   id: string;
@@ -16,6 +17,22 @@ type Reminder = {
   updatedAt: Date;
   time: Date[];
 };
+
+const newSchema = SchemaTypes.schema({
+  todo: {
+    checked: SchemaTypes.boolean(),
+    description: SchemaTypes.string(),
+    subList: SchemaTypes.many(SchemaTypes.entity("todo")),
+    reminder: SchemaTypes.entity("reminder").optional(),
+  },
+  reminder: {
+    time: SchemaTypes.datetime(),
+  },
+  "*": {
+    createdAt: SchemaTypes.datetime().auto(),
+    updatedAt: SchemaTypes.datetime().auto(),
+  },
+});
 
 const schema: Schema = {
   todo: {
@@ -65,12 +82,12 @@ export class App {
   public add(todo: Todo): App {
     this.db.transact((tx) => {
       const reminderRef = todo.reminder
-        ? tx.add("reminder", {
+        ? tx.add(newSchema.reminder, {
             time: todo.reminder.time.toString(),
           })
         : undefined;
 
-      tx.add("todo", {
+      tx.add(newSchema.todo, {
         checked: todo.checked,
         description: todo.description,
         reminder: reminderRef,
@@ -110,7 +127,7 @@ export class App {
     this.db.transact((tx) => {
       const subListRefs = [];
       for (const subItem of subList) {
-        const ref = tx.add("todo", {
+        const ref = tx.add(newSchema.todo, {
           checked: subItem.checked,
           description: subItem.description,
         });
