@@ -1,14 +1,17 @@
-import { Attribute, TrippleFact } from "src/Datalog/Types"
+import { Attribute, TrippleFact } from "src/Datalog/Types";
 
 export interface Transaction {
-  add(entity: string, addValues: Record<string, MirrorDBValue | TempRef | undefined>): TempRef;
+  add(
+    entity: string,
+    addOp: Record<string, MirrorDBValue | TempRef | undefined>
+  ): TempRef;
   update(entity: string, updateInput: UpdateInput): TempRef;
 }
 
 export type UpdateInput = {
-  find: Record<string, MirrorDBValue | TempRef | undefined>,
-  update: Record<string, MirrorDBValue | TempRef | undefined>,
-}
+  find: Record<string, MirrorDBValue | TempRef | undefined>;
+  update: Record<string, MirrorDBValue | TempRef | undefined>;
+};
 
 class TransactionImpl implements Transaction {
   private _operations: Operation[];
@@ -27,19 +30,22 @@ class TransactionImpl implements Transaction {
     return this._tempRefs;
   }
 
-  public add(entity: string, addOp: Record<string, MirrorDBValue | TempRef | undefined>): TempRef {
-    return { kind: 'TempRef', ref: ''};
+  public add(
+    entity: string,
+    addOp: Record<string, MirrorDBValue | TempRef | undefined>
+  ): TempRef {
+    return { kind: "TempRef", ref: "" };
   }
 
-  public update(entity: string, updateOp: Record<string, MirrorDBValue | TempRef | undefined>): TempRef {
-    return { kind: 'TempRef', ref: ''};
+  public update(entity: string, updateOp: UpdateInput): TempRef {
+    return { kind: "TempRef", ref: "" };
   }
 }
 
 type DB = TrippleFact[];
 
 type TempRef = {
-  kind: 'TempRef';
+  kind: "TempRef";
   ref: string;
 };
 
@@ -50,21 +56,25 @@ type Operation = AddOp | UpdateOp;
 type MirrorDBValue = string | number | boolean;
 
 type AddOp = {
-  kind: 'AddOp';
+  kind: "AddOp";
 
   tempRef: string;
   entity: string;
   values: Record<string, MirrorDBValue | TempRef | undefined>;
-}
+};
 
 type UpdateOp = {
-  kind: 'UpdateOp';
+  kind: "UpdateOp";
   entity: string;
   find: [string, MirrorDBValue | Ref];
   values: Record<string, MirrorDBValue | TempRef | undefined>;
 };
 
-export function transact(f: (tx: Transaction) => void, db: DB, genRef: () => string): DB {
+export function transact(
+  f: (tx: Transaction) => void,
+  db: DB,
+  genRef: () => string
+): DB {
   const tx = new TransactionImpl();
 
   f(tx);
@@ -74,7 +84,7 @@ export function transact(f: (tx: Transaction) => void, db: DB, genRef: () => str
   const newTripples: [Ref, Attribute, MirrorDBValue | TempRef][] = [];
   const toRemove: [any, any][] = [];
   for (const op of tx.operations) {
-    if (op.kind === 'AddOp') {
+    if (op.kind === "AddOp") {
       const ref = genRef();
       mapRefs.set(op.tempRef, ref);
       const namespace = op.entity;
@@ -85,7 +95,7 @@ export function transact(f: (tx: Transaction) => void, db: DB, genRef: () => str
           newTripples.push([ref, fullAttr, value]);
         }
       }
-    } else if (op.kind === 'UpdateOp') {
+    } else if (op.kind === "UpdateOp") {
       const findAttr = op.find[0];
       const findValue = op.find[1];
       let oldFact;
@@ -112,20 +122,24 @@ export function transact(f: (tx: Transaction) => void, db: DB, genRef: () => str
 
   for (const newFact of newTripples) {
     const value = newFact[2];
-    if (typeof(value) === 'object' && value.kind === 'TempRef') {
+    if (typeof value === "object" && value.kind === "TempRef") {
       const tempRef = newFact[2] as TempRef;
       newFact[2] = mapRefs.get(tempRef.ref)!;
     }
   }
 
-  const newDb = db.filter((fact) =>
-    toRemove
-      .filter((removeFact) =>
-        removeFact[0] === fact.entity && removeFact[1] === fact.attribute)
-      .length === 0);
- 
+  const newDb = db.filter(
+    (fact) =>
+      toRemove.filter(
+        (removeFact) =>
+          removeFact[0] === fact.entity && removeFact[1] === fact.attribute
+      ).length === 0
+  );
+
   for (const newFact of newTripples) {
-    newDb.push(new TrippleFact(newFact[0], newFact[1], newFact[2] as MirrorDBValue | Ref));
+    newDb.push(
+      new TrippleFact(newFact[0], newFact[1], newFact[2] as MirrorDBValue | Ref)
+    );
   }
 
   return newDb;

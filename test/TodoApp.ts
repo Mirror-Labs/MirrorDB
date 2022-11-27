@@ -1,62 +1,62 @@
-import { MirrorDB, Schema } from '../src/MirrorDB/MirrorDB';
+import { MirrorDB, Schema } from "../src/MirrorDB/MirrorDB";
 
 type Todo = {
-  id: string,
+  id: string;
   checked: boolean;
   description: string;
   createdAt: Date;
   updatedAt: Date;
   subList: Todo[];
   reminder?: Reminder;
-}
+};
 
 type Reminder = {
   id: string;
   createdAt: Date;
   updatedAt: Date;
   time: Date[];
-}
+};
 
 const schema: Schema = {
-  'todo': {
-    'checked': MirrorDB.boolean,
-    'description': MirrorDB.string,
-    'subList': MirrorDB.many(MirrorDB.entity('todo')),
-    'reminder': MirrorDB.entity('reminder')
+  todo: {
+    checked: MirrorDB.boolean,
+    description: MirrorDB.string,
+    subList: MirrorDB.many(MirrorDB.entity("todo")),
+    reminder: MirrorDB.entity("reminder"),
   },
-  'reminder': {
-    'time': MirrorDB.datetime
+  reminder: {
+    time: MirrorDB.datetime,
   },
-  '*': {
-   'id': MirrorDB.id,
-    'createdAt': MirrorDB.datetime,
-    'updatedAt': MirrorDB.datetime,
-  }
+  "*": {
+    id: MirrorDB.id,
+    createdAt: MirrorDB.datetime,
+    updatedAt: MirrorDB.datetime,
+  },
 };
 
 export class App {
   private db: MirrorDB;
 
   constructor() {
-    this.db = new MirrorDB('todo', schema);
+    this.db = new MirrorDB("todo", schema);
   }
 
   public view(): Todo[] {
-    return this.db.query<Todo>({ 
+    return this.db.query<Todo>({
       find: {
-        'todo': {
-          'checked': true,
-          'description': '*',
-          'reminder': {
-            'time': '*'
-          }
-        }
+        todo: {
+          checked: true,
+          description: "*",
+          reminder: {
+            time: "*",
+          },
+        },
       },
       sortBy: {
-        'createdAt': 'asc'
+        createdAt: "asc",
       },
-      limit: 10
-     });
+      limit: 10,
+    });
   }
 
   // find [t? r? t?]: [t? :todo/checked true] [t? :todo/description d?] [t? reminder r?] [r? time ?t]
@@ -64,15 +64,17 @@ export class App {
 
   public add(todo: Todo): App {
     this.db.transact((tx) => {
-      const reminderRef = todo.reminder ? tx.add('reminder', {
-        time: todo.reminder.time.toString()
-      }) : undefined 
-    
-      tx.add('todo', {
+      const reminderRef = todo.reminder
+        ? tx.add("reminder", {
+            time: todo.reminder.time.toString(),
+          })
+        : undefined;
+
+      tx.add("todo", {
         checked: todo.checked,
         description: todo.description,
-        reminder: reminderRef
-      })
+        reminder: reminderRef,
+      });
       return tx;
     });
     return this;
@@ -80,23 +82,23 @@ export class App {
 
   public modify(todo: Todo): App {
     this.db.transact((tx) => {
-      tx.update('todo', {
+      tx.update("todo", {
         find: {
-          'id': todo.id,
+          id: todo.id,
         },
         update: {
-          'checked': todo.checked,
-          'description': todo.description,
-        }
+          checked: todo.checked,
+          description: todo.description,
+        },
       });
       if (todo.reminder) {
-        tx.update('reminder', {
+        tx.update("reminder", {
           find: {
-            'id': todo.reminder.id,
+            id: todo.reminder.id,
           },
           update: {
-            'time': todo.reminder.time.toString(),
-          }
+            time: todo.reminder.time.toString(),
+          },
         });
       }
       return tx;
@@ -108,21 +110,21 @@ export class App {
     this.db.transact((tx) => {
       const subListRefs = [];
       for (const subItem of subList) {
-        const ref = tx.add('todo', {
+        const ref = tx.add("todo", {
           checked: subItem.checked,
           description: subItem.description,
         });
         subListRefs.push(ref);
       }
 
-      tx.update('todo', {
+      tx.update("todo", {
         find: {
-          'id': todo.id,
+          id: todo.id,
         },
         update: {
-          'subList': subListRefs.toString()
-        }
-      })
+          subList: subListRefs.toString(),
+        },
+      });
 
       return tx;
     });
