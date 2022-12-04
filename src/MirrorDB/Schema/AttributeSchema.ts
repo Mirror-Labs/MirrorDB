@@ -4,7 +4,7 @@ import { Cardinality, join } from "./Cardinality";
 /**
  * The schema for a single tripple
  */
-export class TrippleType {
+export class AttributeSchema {
   constructor(
     private _type: Type.Type,
     private _cardinality: Cardinality,
@@ -23,15 +23,15 @@ export class TrippleType {
     return this._unique;
   }
 
-  join(other: TrippleType): TrippleType {
-    return new TrippleType(
+  join(other: AttributeSchema): AttributeSchema {
+    return new AttributeSchema(
       Type.Or(this.type, other.type),
       join(this.cardinality, other.cardinality),
       this.unique && other.unique // Both must be unique to stay unqiue
     );
   }
 
-  equals(other: TrippleType): boolean {
+  equals(other: AttributeSchema): boolean {
     return (
       this.unique === other.unique &&
       this.cardinality === other.cardinality &&

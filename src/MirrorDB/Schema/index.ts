@@ -1,16 +1,18 @@
 export * from "./Builder";
-export * from "./TrippleType";
+export * from "./AttributeSchema";
 
-import { TrippleType } from "./TrippleType";
+import { AttributeSchema } from "./AttributeSchema";
 
-export class Schema implements Iterable<[string, TrippleType]> {
-  private _trippleTypes: Map<string, TrippleType>;
+export class Schema implements Iterable<[string, AttributeSchema]> {
+  private _trippleTypes: Map<string, AttributeSchema>;
 
-  constructor(init: Record<string, TrippleType> | Map<string, TrippleType>) {
+  constructor(
+    init: Record<string, AttributeSchema> | Map<string, AttributeSchema>
+  ) {
     this._trippleTypes = new Map(Object.entries(init));
   }
 
-  [Symbol.iterator](): Iterator<[string, TrippleType], any, undefined> {
+  [Symbol.iterator](): Iterator<[string, AttributeSchema], any, undefined> {
     return this._trippleTypes.entries();
   }
 
@@ -18,7 +20,7 @@ export class Schema implements Iterable<[string, TrippleType]> {
    * @param attr - the attribute you want the `TrippleType` of
    * @return a `TrippleType` if it exists, otherwise undefined
    */
-  find(attr: string): TrippleType | undefined {
+  find(attr: string): AttributeSchema | undefined {
     return this._trippleTypes.get(attr);
   }
 
@@ -28,7 +30,9 @@ export class Schema implements Iterable<[string, TrippleType]> {
    * @returns a new schema that is the unioin of the two.
    */
   join(other: Schema): Schema {
-    const jointSchema: Map<string, TrippleType> = new Map(this._trippleTypes);
+    const jointSchema: Map<string, AttributeSchema> = new Map(
+      this._trippleTypes
+    );
 
     for (const [attr, trippleType] of other) {
       const mTrippleType = jointSchema.get(attr);
