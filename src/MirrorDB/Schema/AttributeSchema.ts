@@ -27,7 +27,7 @@ export class AttributeSchema {
     return new AttributeSchema(
       Type.Or(this.type, other.type),
       join(this.cardinality, other.cardinality),
-      this.unique && other.unique // Both must be unique to stay unqiue
+      false // Since two different databases always can have overlapping values, unique must be set to false
     );
   }
 
