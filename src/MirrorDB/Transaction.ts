@@ -2,7 +2,7 @@ import { createDB } from "src/Datalog/Example/DumbEngine";
 import { Attribute, TrippleFact } from "src/Datalog/Types";
 import { Schema } from "./MirrorDB";
 import uuid from "uuid";
-import { EntitySchema } from "./Schema";
+import { Schema as EntitySchema } from "./Schema";
 
 export interface Transaction {
   add(
