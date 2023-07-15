@@ -16,3 +16,13 @@ test("exec should return one matching fact", (ctx) => {
   const query: Query = { find: ["?x"], where: [["a", "has", "?x"]] };
   ctx.deepEqual(exec(facts, query), [new Map().set("?x", 42)]);
 });
+
+// test("exec should return multiple matching facts", (ctx) => {
+//   const facts: TrippleFact[] = [
+//     new TrippleFact("a", "has", 42),
+//     new TrippleFact("b", "has", 1337),
+//     new TrippleFact("a", "has", 43),
+//   ];
+//   const query: Query = { find: ["?x"], where: [["a", "has", "?x"]] };
+//   ctx.deepEqual(exec(facts, query), [new Map().set("?x", 42)]);
+// });

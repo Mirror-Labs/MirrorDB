@@ -1,1 +1,1 @@
-export * as SemiNaive from "./SemiNaive";
+export * as SemiNaive from "./SemiNaive2";

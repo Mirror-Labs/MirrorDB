@@ -6,8 +6,7 @@ import * as Interface from "src/Interface";
 export type EntityID = string;
 export type Attribute = string;
 export type Value = string | number | boolean;
-export type Variable = string;
-
+export type Variable = `?${string}`;
 export type TripleRaw = [EntityID, Attribute, Value];
 
 ////////////////////////////////////////////////////////////////////////////////
