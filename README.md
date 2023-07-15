@@ -1,24 +1,34 @@
 # MirrorDB
 
-An application-centric p2p database with super-powers
+A p2p database with superpowers.
 
 ## Background
 
-## Development
+After building multiple CRUD applications I realized that many of these applications use a central database on a server with the only purpose to be able to sync between devices. Sure, there are some features that you can only implement by hosting all the data in one central repository but are those the features that the user wants? No, I don't think so. We settle on centralized storage because that is the only game in town if you want to sync across devices.
 
-### Installation
+MirrorDB puts the data where it should be: in the hands of the user. Not in the hands of startups that go bust as soon as the VC money runs dry. It is a decentralized database for the masses with the convenience of the cloud and the privacy of a local database.
 
-```
-npm install
-```
+## Project Status
 
-### Running Tests
+- [ ] Write an in-memory datalog engine
+- [ ] Write a datalog engine with persistent storage for NodeJS
 
-```
-npm run test
-```
+## Planned Features
 
-### Building
-
-There is currently no way of building the project. This will be added later
-when it is needed.
+- Reactive queries (queries incrementally update when updates are made)
+- Transactions
+- Automatic synchronization between databases
+  - Bluetooth
+  - HTTP
+  - LAN
+  - DBUS
+  - ...
+- Database Schemas
+- Rich Query Language
+- Automatic Discovery of nearby databases
+  - Bluetooth
+  - mDNS
+  - DBUS
+  - ICE
+  - ...
+- Node and Browser backend
