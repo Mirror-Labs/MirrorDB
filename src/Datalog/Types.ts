@@ -8,7 +8,7 @@ export type Attribute = string;
 export type Value = string | number | boolean;
 export type Variable = string;
 
-export type TripleRaw = [string, string, string | number];
+export type TripleRaw = [EntityID, Attribute, Value];
 
 ////////////////////////////////////////////////////////////////////////////////
 // Fact
@@ -30,7 +30,7 @@ export class TrippleFact implements Fact {
 
   // Should only use entity, attribute, and value
   hash(): string {
-    return this.entity + "." + this.attribute + "." + this.value;
+    return this.entity + "." + this.attribute + "." + this.value.toString();
   }
 
   get entity() {
@@ -213,7 +213,7 @@ interface _Expr {
 export type Expr = _Expr & Interface.ICanEqual<Expr>;
 
 export class ExprVal implements Expr {
-  constructor(private _value: string | number) {}
+  constructor(private _value: Value) {}
 
   get value() {
     return this._value;
