@@ -18,6 +18,8 @@ type Reminder = {
   time: Date[];
 };
 
+SchemaTypes.Schema;
+
 const newSchema = SchemaTypes.schema({
   todo: {
     checked: SchemaTypes.boolean(),

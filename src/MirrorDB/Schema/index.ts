@@ -3,6 +3,9 @@ export * from "./AttributeSchema";
 
 import { AttributeSchema } from "./AttributeSchema";
 
+export const schema = (init: Record<string, AttributeSchema>) =>
+  new Schema(init);
+
 export class Schema implements Iterable<[string, AttributeSchema]> {
   private _trippleTypes: Map<string, AttributeSchema>;
 
