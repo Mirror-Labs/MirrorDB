@@ -160,3 +160,15 @@ db1.mergeStreamSimplex(db2);
 
 // Querying is done using a query DSL. It is a pretty wrapper around the underlying query language, datalog.
 // The query DSL is a subset of datalog, and is designed to be easy to use and map to developers mental model.
+
+/*
+ * Find all todos that are checked.
+ *
+ * checkedTodoIDs(x) :- tripple(x, "checked", true), tripple(x, "__kind__", "entity_1").
+ *
+ * Then we simply map the ids to the actual todos. Since the db is local we can do this lazely.
+ * Most of the time people just want to se the 100 first results and then paginate/stream the rest.
+ * we should return a lazy list of results, and only evalutate as much of the query as is needed.
+ */
+
+db1.query({});
