@@ -159,3 +159,4 @@ db1.mergeStreamSimplex(db2);
  */
 
 // Querying is done using a query DSL. It is a pretty wrapper around the underlying query language, datalog.
+// The query DSL is a subset of datalog, and is designed to be easy to use and map to developers mental model.
